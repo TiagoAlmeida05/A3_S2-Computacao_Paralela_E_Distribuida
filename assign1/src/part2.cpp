@@ -169,19 +169,19 @@ int main(int argc, char *argv[]) {
         op = atoi(argv[1]);
         lin = atoi(argv[2]);
         threads = atoi(argv[3]);
-        if (argc == 5) blockSize = atoi(argv[4]);
 
-        if (op == 1) { 
-            OnMult_Standard(lin, threads); // Parallel outer loop
-            OnMult_Nested(lin, threads);   // Parallel inner loop
-            OnMultLine_Standard(lin, threads); 
-            OnMultLine_Nested(lin, threads); 
-        }
-        else if (op == 2) { 
-            OnMultLine_Standard(lin, threads); // Standard 
-            OnMultLine_SIMD(lin, threads);     // Using SIMD
-            OnMultLine_Collapse(lin, threads); // Collapse
-        }
+        // TASK 1
+        if (op == 1)      OnMult_Standard(lin, threads); 
+        else if (op == 2) OnMult_Nested(lin, threads);   
+        else if (op == 3) OnMultLine_Standard(lin, threads); 
+        else if (op == 4) OnMultLine_Nested(lin, threads); 
+        
+        // TASK 2 
+        else if (op == 5) OnMultLine_Standard(lin, threads); 
+        else if (op == 6) OnMultLine_SIMD(lin, threads);         
+        else if (op == 7) OnMultLine_Collapse(lin, threads);     
+        
+        return 0;
         
         return 0;
     }
