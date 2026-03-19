@@ -186,5 +186,30 @@ int main(int argc, char *argv[])
         }
         return 0;
     }
+    do {
+        cout << endl << "--- CPD Project 1 Menu ---" << endl;
+        cout << "1. Standard" << endl;
+        cout << "2. Line-oriented" << endl;
+        cout << "3. Block-oriented" << endl;
+        cout << "0. Exit" << endl;
+        cout << "Selection: "; 
+        cin >> op;
+        
+        if (op == 0) break;
+        
+        cout << "Size: "; 
+        cin >> lin;
+        col = lin;
+        
+        if (op == 3) { 
+            cout << "Block Size: "; 
+            cin >> blockSize; 
+        }
+
+        if (op == 1) { OnMult(lin, col); }
+        if (op == 2) { OnMultLine(lin, col); }
+        if (op == 3) { OnMultBlock(lin, col, blockSize); }
+
+    } while (op != 0);
     return 0;
 }
