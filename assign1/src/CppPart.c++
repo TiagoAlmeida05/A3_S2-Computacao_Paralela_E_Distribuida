@@ -8,6 +8,19 @@ using namespace std;
 
 #define SYSTEMTIME clock_t
 
+
+double calculateGFlops(int n, double time) {
+    if (time <= 0) return 0;
+    return (2.0 * (double)n * n * n) / (time * 1e9);
+}
+
+void initMatrices(double* a, double* b, double* c, int n) {
+    for (int i = 0; i < n * n; i++) {
+        a[i] = 1.0;
+        b[i] = (double)(i / n + 1);
+        c[i] = 0.0; 
+    }
+}
  
 void OnMult(int m_ar, int m_br) 
 {
@@ -23,13 +36,7 @@ void OnMult(int m_ar, int m_br)
     phb = (double *)malloc((m_ar * m_ar) * sizeof(double));
     phc = (double *)malloc((m_ar * m_ar) * sizeof(double));
 
-    for(i = 0; i < m_ar; i++)
-        for(j = 0; j < m_ar; j++)
-            pha[i*m_ar + j] = 1.0;
-
-    for(i = 0; i < m_br; i++)
-        for(j = 0; j < m_br; j++)
-            phb[i*m_br + j] = (double)(i + 1);
+    initMatrices(pha, phb, phc, m_ar);
 
     Time1 = clock();
 
@@ -47,17 +54,11 @@ void OnMult(int m_ar, int m_br)
     }
 
     Time2 = clock();
-    snprintf(st, sizeof(st), "Time: %3.3f seconds\n",
-         (double)(Time2 - Time1) / CLOCKS_PER_SEC);
+    snprintf(st, sizeof(st), "Lines/Cols: %2d  |  Line Time: %3.3f seconds  |",
+         m_ar, (double)(Time2 - Time1) / CLOCKS_PER_SEC);
     cout << st;
 
-    cout << "Result matrix: " << endl;
-    for(i = 0; i < 1; i++)
-    {
-        for(j = 0; j < min(10, m_br); j++)
-            cout << phc[j] << " ";
-    }
-    cout << endl;
+    printf("  GFLOPS: %3.2f\n", calculateGFlops(m_ar, (double)(Time2 - Time1) / CLOCKS_PER_SEC));
 
     free(pha);
     free(phb);
@@ -80,13 +81,7 @@ void OnMultLine(int m_ar, int m_br)
     phc = (double *)malloc((m_ar * m_ar) * sizeof(double));
 
 
-    for(i = 0; i < m_ar; i++)
-        for(j = 0; j < m_ar; j++)
-            pha[i*m_ar + j] = 1.0;
-
-    for(i = 0; i < m_br; i++)
-        for(j = 0; j < m_br; j++)
-            phb[i*m_br + j] = (double)(i + 1);
+    initMatrices(pha, phb, phc, m_ar);
 
     
     Time1 = clock();
@@ -106,14 +101,11 @@ void OnMultLine(int m_ar, int m_br)
 
     Time2 = clock();
 
-    snprintf(st, sizeof(st), "Line Time: %3.3f seconds\n",
-         (double)(Time2 - Time1) / CLOCKS_PER_SEC);
+    snprintf(st, sizeof(st), "Lines/Cols: %2d  |  Line Time: %3.3f seconds  |",
+         m_ar, (double)(Time2 - Time1) / CLOCKS_PER_SEC);
     cout << st;
 
-    cout << "Result matrix (first 10 elements): " << endl;
-    for(j = 0; j < min(10, m_br); j++)
-        cout << phc[j] << " ";
-    cout << endl;
+    printf("  GFLOPS: %3.2f\n", calculateGFlops(m_ar, (double)(Time2 - Time1) / CLOCKS_PER_SEC));
 
     free(pha);
     free(phb);
@@ -136,10 +128,8 @@ void OnMultBlock(int m_ar, int m_br, int bkSize)
     phb = (double *)malloc((m_ar * m_ar) * sizeof(double));
     phc = (double *)malloc((m_ar * m_ar) * sizeof(double));
 
-    for(i = 0; i < m_ar * m_ar; i++) {
-        pha[i] = 1.0;
-        phb[i] = (double)((i / m_ar) + 1);
-    }
+    initMatrices(pha, phb, phc, m_ar);
+
     
     Time1 = clock();
 
@@ -163,14 +153,11 @@ void OnMultBlock(int m_ar, int m_br, int bkSize)
 
     Time2 = clock();
 
-    snprintf(st, sizeof(st), "Line Time: %3.3f seconds\n",
-         (double)(Time2 - Time1) / CLOCKS_PER_SEC);
+    snprintf(st, sizeof(st), "Lines/Cols: %2d  |  Blocks: %2d  |  Line Time: %3.3f seconds  |",
+         m_ar, bkSize, (double)(Time2 - Time1) / CLOCKS_PER_SEC);
     cout << st;
 
-    cout << "Result matrix (first 10 elements): " << endl;
-    for(j = 0; j < min(10, m_br); j++)
-        cout << phc[j] << " ";
-    cout << endl;
+    printf("  GFLOPS: %3.2f\n", calculateGFlops(m_ar, (double)(Time2 - Time1) / CLOCKS_PER_SEC));
 
     free(pha);
     free(phb);
@@ -183,36 +170,21 @@ int main(int argc, char *argv[])
     int lin, col, blockSize;
     int op;
 
-    do {
-        cout << endl << "1. Multiplication" << endl;
-        cout << "2. Line Multiplication" << endl;
-        cout << "3. Block Multiplication" << endl;
-        cout << "0. Exit" << endl;
-        cout << "Selection?: ";
-        cin >> op;
-
-        if (op == 0)
-            break;
-
-        cout << "Dimensions: lins=cols ? ";
-        cin >> lin;
+    if (argc >=3) {
+        op = atoi(argv[1]);
+        lin = atoi(argv[2]);
         col = lin;
-
-        switch (op) {
-            case 1:
-                OnMult(lin, col);
-                break;
-            case 2:
-                OnMultLine(lin, col);
-                break;
-            case 3:
-                cout << "Block Size? ";
-                cin >> blockSize;
-                OnMultBlock(lin, col, blockSize);
-                break;
+        if (op == 1) { 
+            OnMult(lin,col); 
         }
-
-    } while (op != 0);
-
+        else if (op == 2) { 
+            OnMultLine(lin, col); 
+        }
+        else if (op == 3) { 
+            blockSize = atoi(argv[3]);
+            OnMultBlock(lin, col, blockSize); 
+        }
+        return 0;
+    }
     return 0;
 }
