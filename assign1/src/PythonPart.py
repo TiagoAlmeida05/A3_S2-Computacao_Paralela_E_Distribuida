@@ -1,5 +1,9 @@
 import time
 
+def calculate_gflops(n, exec_time):
+    if exec_time <= 0: return 0
+    return (2.0 * n * n * n) / (exec_time * 1e9)
+
 def on_mult(m_ar, m_br):
    
     pha = [1.0] * (m_ar * m_ar)
@@ -49,7 +53,7 @@ def on_mult_line(m_ar, m_br):
             for j in range(m_br):
                 phc[i*m_ar + j] += temp * phb[k*m_br + j]
 
-            end_time = time.time()
+    end_time = time.time()
 
     print(f"Time: {end_time - start_time:.3f} seconds")
     
