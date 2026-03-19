@@ -40,7 +40,7 @@ void OnMult_Standard(int n, int threads) {
         }
     }
     double end = omp_get_wtime();
-    printf("V1 Outer Par | Threads: %2d | Time: %3.3fs | GFlops: %3.2f\n", threads, end-start, calculateGFlops(n, end-start));
+    printf("On Mult| Threads: %2d | Time: %3.3fs | GFlops: %3.2f\n", threads, end-start, calculateGFlops(n, end-start));
     free(pha); free(phb); free(phc);
 }
 
@@ -65,7 +65,7 @@ void OnMult_Nested(int n, int threads) {
         }
     }
     double end = omp_get_wtime();
-    printf("V1 Nested    | Threads: %2d | Time: %3.3fs | GFlops: %3.2f\n", threads, end-start, calculateGFlops(n, end-start));
+    printf("On Mult Nested    | Threads: %2d | Time: %3.3fs | GFlops: %3.2f\n", threads, end-start, calculateGFlops(n, end-start));
     free(pha); free(phb); free(phc);
 }
 
@@ -86,7 +86,7 @@ void OnMultLine_Standard(int n, int threads) {
         }
     }
     double end = omp_get_wtime();
-    printf("V2 Standard  | Threads: %2d | Time: %3.3fs | GFlops: %3.2f\n", threads, end-start, calculateGFlops(n, end-start));
+    printf("On Line | Threads: %2d | Time: %3.3fs | GFlops: %3.2f\n", threads, end-start, calculateGFlops(n, end-start));
     free(pha); free(phb); free(phc);
 }
 
