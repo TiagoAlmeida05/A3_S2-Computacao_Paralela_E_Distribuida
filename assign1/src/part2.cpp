@@ -7,7 +7,7 @@
 
 using namespace std;
 
-// Helper to calculate GFlops [cite: 18, 65]
+// Helper to calculate GFlops
 double calculateGFlops(int n, double time) {
     if (time <= 0) return 0;
     return (2.0 * (double)n * n * n) / (time * 1e9);
@@ -69,8 +69,6 @@ void OnMult_Nested(int n, int threads) {
     free(pha); free(phb); free(phc);
 }
 
-// 2. LINE-BY-LINE MULTIPLICATION (V2)
-// Task 2: Standard Parallel
 void OnMultLine_Standard(int n, int threads) {
     double *pha = (double *)malloc(n * n * sizeof(double));
     double *phb = (double *)malloc(n * n * sizeof(double));
@@ -92,6 +90,31 @@ void OnMultLine_Standard(int n, int threads) {
     free(pha); free(phb); free(phc);
 }
 
+void OnMultLine_Nested(int n, int threads) {
+    double *pha = (double *)malloc(n * n * sizeof(double));
+    double *phb = (double *)malloc(n * n * sizeof(double));
+    double *phc = (double *)malloc(n * n * sizeof(double));
+    initMatrices(pha, phb, phc, n);
+
+    omp_set_num_threads(threads);
+    double start = omp_get_wtime();
+    
+    #pragma omp parallel
+    for (int i = 0; i < n; i++) {
+        for (int k = 0; k < n; k++) {
+            double temp_a = pha[i * n + k];
+            #pragma omp for 
+            for (int j = 0; j < n; j++) {
+                phc[i * n + j] += temp_a * phb[k * n + j];
+            }
+        }
+    }
+    
+    double end = omp_get_wtime();
+    printf("Line Mult Nested    | Threads: %2d | Time: %3.3fs | GFlops: %3.2f\n", threads, end-start, calculateGFlops(n, end-start));
+    free(pha); free(phb); free(phc);
+}
+
 //Exploration of SIMD
 void OnMultLine_SIMD(int n, int threads) {
     double *pha = (double *)malloc(n * n * sizeof(double));
@@ -101,11 +124,11 @@ void OnMultLine_SIMD(int n, int threads) {
 
     omp_set_num_threads(threads);
     double start = omp_get_wtime();
-    #pragma omp parallel for
+    #pragma omp parallel
     for (int i = 0; i < n; i++) {
         for (int k = 0; k < n; k++) {
             double temp_a = pha[i * n + k];
-            #pragma omp for simd // Vectorize the innermost loop [cite: 69]
+            #pragma omp for simd 
             for (int j = 0; j < n; j++) {
                 phc[i * n + j] += temp_a * phb[k * n + j];
             }
@@ -151,6 +174,8 @@ int main(int argc, char *argv[]) {
         if (op == 1) { 
             OnMult_Standard(lin, threads); // Parallel outer loop
             OnMult_Nested(lin, threads);   // Parallel inner loop
+            OnMultLine_Standard(lin, threads); 
+            OnMultLine_Nested(lin, threads); 
         }
         else if (op == 2) { 
             OnMultLine_Standard(lin, threads); // Standard 
@@ -161,7 +186,6 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    // Your original menu for manual testing
     do {
         cout << endl << "--- CPD Project 1 Menu ---" << endl;
         cout << "1. V1 (Outer vs Nested)" << endl;
@@ -174,7 +198,7 @@ int main(int argc, char *argv[]) {
         cout << "Threads: "; cin >> threads;
         if (op == 3) { cout << "Block Size: "; cin >> blockSize; }
 
-        if (op == 1) { ~
+        if (op == 1) { 
             OnMult_Standard(lin, threads); 
             OnMult_Nested(lin, threads);
             OnMultLine_Standard(lin, threads); 
