@@ -1,0 +1,41 @@
+--- CPD PROJECT 1 PART 1 DATA COLLECTION ---
+--- ALL C++ TIMES ---
+>>> COLLECTING C++ VERSION 1
+./test_part1.sh: line 17: perf: command not found
+./test_part1.sh: line 17: perf: command not found
+./test_part1.sh: line 17: perf: command not found
+./test_part1.sh: line 17: perf: command not found
+./test_part1.sh: line 17: perf: command not found
+>>> COLLECTING C++ VERSION 2 (Up to 3072)
+./test_part1.sh: line 24: perf: command not found
+./test_part1.sh: line 24: perf: command not found
+./test_part1.sh: line 24: perf: command not found
+./test_part1.sh: line 24: perf: command not found
+./test_part1.sh: line 24: perf: command not found
+>>> COLLECTING C++ VERSION 2 (Huge Sizes)
+./test_part1.sh: line 30: perf: command not found
+./test_part1.sh: line 30: perf: command not found
+./test_part1.sh: line 30: perf: command not found
+./test_part1.sh: line 30: perf: command not found
+>>> COLLECTING C++ VERSION 3
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+./test_part1.sh: line 38: perf: command not found
+--- ALL PYTHON DATA ---
+>>> COLLECTING PYTHON VERSION 1
+./test_part1.sh: line 52: perf: command not found
+./test_part1.sh: line 52: perf: command not found
+./test_part1.sh: line 52: perf: command not found
+>>> COLLECTING PYTHON VERSION 2
+./test_part1.sh: line 60: perf: command not found
+./test_part1.sh: line 60: perf: command not found
+./test_part1.sh: line 60: perf: command not found
