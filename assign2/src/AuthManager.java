@@ -7,7 +7,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class AuthManager {
     private final File userFile = new File("users.txt");
     private final File tokenFile = new File("tokens.txt"); 
-    private final Map<String, String> activeTokens = new HashMap<>();
+    
+    private static final long TOKEN_LIFESPAN_MS = 60 * 60 * 1000;
+
+    private static class TokenData {
+        String username;
+        long expirationTime;
+
+        TokenData(String username, long expirationTime) {
+            this.username = username;
+            this.expirationTime = expirationTime;
+        }
+    }
+
+    private final Map<String, TokenData> activeTokens = new HashMap<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public AuthManager() {
@@ -26,17 +39,26 @@ public class AuthManager {
     }
 
     private void loadTokens() {
+        long currentTime = System.currentTimeMillis();
+        int loaded = 0;
+        
         try (BufferedReader reader = new BufferedReader(new FileReader(tokenFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(":", 2);
-                if (parts.length == 2) {
-                    activeTokens.put(parts[0], parts[1]);
+                String[] parts = line.split(":", 3);
+                if (parts.length == 3) {
+                    long expirationTime = Long.parseLong(parts[2]);
+                    
+                    // Only load the token into memory if it hasn't expired yet!
+                    if (currentTime < expirationTime) {
+                        activeTokens.put(parts[0], new TokenData(parts[1], expirationTime));
+                        loaded++;
+                    }
                 }
             }
-            System.out.println("Loaded " + activeTokens.size() + " active sessions from disk.");
-        } catch (IOException e) {
-            System.out.println("Error loading tokens.");
+            System.out.println("Loaded " + loaded + " active sessions from disk (ignored expired ones).");
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Error loading tokens. File might be corrupted or using old format.");
         }
     }
 
@@ -83,10 +105,12 @@ public class AuthManager {
         lock.writeLock().lock();
         try {
             String token = UUID.randomUUID().toString();
-            activeTokens.put(token, username);
+            long expirationTime = System.currentTimeMillis() + TOKEN_LIFESPAN_MS;
+            
+            activeTokens.put(token, new TokenData(username, expirationTime));
             
             try (PrintWriter writer = new PrintWriter(new FileWriter(tokenFile, true))) {
-                writer.println(token + ":" + username);
+                writer.println(token + ":" + username + ":" + expirationTime);
             } catch (IOException e) {
                 System.out.println("Could not save token to file.");
             }
@@ -99,11 +123,23 @@ public class AuthManager {
     }
 
     public String getUsernameFromToken(String token) {
-        lock.readLock().lock();
+        lock.writeLock().lock(); 
         try {
-            return activeTokens.get(token);
+            TokenData data = activeTokens.get(token);
+            if (data == null) {
+                return null; // Token doesn't exist
+            }
+            
+            // Validate expiration
+            if (System.currentTimeMillis() > data.expirationTime) {
+                System.out.println("Token expired for user: " + data.username);
+                activeTokens.remove(token); // Delete from memory
+                return null;
+            }
+            
+            return data.username;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 }
