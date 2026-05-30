@@ -15,7 +15,6 @@ public class RoomManager {
         try {
             if (!rooms.containsKey(roomName)) {
                 
-                // Check if the room is meant to be an AI room
                 if (roomName.toLowerCase().startsWith("ai ")|| roomName.equalsIgnoreCase("ai")) {
                     String systemPrompt = "You are a helpful assistant in a group chat. Keep your answers brief and relevant to the conversation.";
                     rooms.put(roomName, new AIChatRoom(roomName, systemPrompt));

@@ -49,7 +49,6 @@ public class AuthManager {
                 if (parts.length == 3) {
                     long expirationTime = Long.parseLong(parts[2]);
                     
-                    // Only load the token into memory if it hasn't expired yet!
                     if (currentTime < expirationTime) {
                         activeTokens.put(parts[0], new TokenData(parts[1], expirationTime));
                         loaded++;
@@ -127,13 +126,12 @@ public class AuthManager {
         try {
             TokenData data = activeTokens.get(token);
             if (data == null) {
-                return null; // Token doesn't exist
+                return null;
             }
             
-            // Validate expiration
             if (System.currentTimeMillis() > data.expirationTime) {
                 System.out.println("Token expired for user: " + data.username);
-                activeTokens.remove(token); // Delete from memory
+                activeTokens.remove(token);
                 return null;
             }
             
